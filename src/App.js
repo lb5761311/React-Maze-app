@@ -3,52 +3,27 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
-  constructor(){
+  constructor() {
     super();
     this.state = {
-      panel :null,
-      Nleft:0,
-      Ntop:0,
-      Nright:0,
-      Nbottom:0,
-      pos:Array(2).fill(null),
+      panel: null,
+      pos: Array(2).fill(null),
     }
   }
-  componentDidMount(){
-    document.addEventListener("keydown", this.onKeyDown);
+  componentDidMount() {
     this.initPanel();
   }
-  onKeyDown =(e)=>{
-    const panel = this.state.panel;
-    const Ntop = this.state.Ntop;
-    const Nleft = this.state.Nleft;
-    var step =panel[Ntop][Nleft];
-    switch(e.keyCode){
-      case 37:
-        console.log('left');
-      //  console.log(this.state.panel);
-        break;
-      case 39:
-        
-      default:
-      console.log('----------------');
-    }
-  }
-  initPanel(){
+  
+  initPanel() {
     console.log("init Row");
-    const value = {top:false, left:false, bottom:false, right:false};
+    const value = { top: false, left: false, bottom: false, right: false };
     const rows = document.getElementsByClassName('row');
-    const rat = document.getElementById("rats");
     var LeftTop = rows[0].children[0];
     var Pos = new Array();
-    Pos[0] = LeftTop.offsetLeft + 1 + "px"; 
-    Pos[1] = LeftTop.offsetTop + 1 + "px";
-    this.setState({
-      pos:Pos,
-    });
+    Pos[0] = LeftTop.offsetLeft + 1 ;
+    Pos[1] = LeftTop.offsetTop + 1 ;
     const mPanel = [];
-    //console.log(rows);
-    for(let row of rows) {
+    for (let row of rows) {
       const nodes = row.children;
       let eachRow = [];
       for (let node of nodes) {
@@ -58,12 +33,11 @@ class App extends Component {
         eachRow.push(Object.assign({}, value, borderMap))
       }
       mPanel.push(eachRow);
-     // console.log(eachRow);
     }
-    this.setState({panel:mPanel});
-  //  console.log(mPanel);
-  
-    
+    this.setState({ 
+      panel: mPanel ,
+      pos:Pos,
+    });
   }
   render() {
     return (
@@ -510,30 +484,74 @@ class App extends Component {
             <div className="bottom cell"></div>
           </div>
         </div>
-        <Rat id="rats"pos={this.state.pos}/>
+        <Rat id="rats" pos={this.state.pos} panel={this.state.panel} />
       </div>
     );
   }
 }
 
 class Rat extends Component {
-  constructor(){
+  constructor() {
     super();
-    this.state={
-      X:10,
-      Y:0,
+    this.state = {
+      pos: new Array(2).fill(null),
+      initPos:new Array(2).fill(null),
+      nLeft:0,
+      nTop:0,
     }
   }
- 
-  render(){
-
-    var nstyle ={
-      left:this.props.pos[0],
-       top:this.props.pos[1],
+  componentDidMount() {
+    document.addEventListener("keydown", this.onKeyDown);
+  }
+  render() {
+    var currenStep_X = this.state.nLeft*22 ;
+    var currenStep_Y = this.state.nTop*22;
+    var X = this.props.pos[0];
+    var Y = this.props.pos[1];
+    var nstyle = {
+      left: X + currenStep_X,
+      top: Y +  currenStep_Y,
     };
-    return(
+    return (
       <div id="rats" className="rat" style={nstyle}></div>
     );
+  }
+  onKeyDown = (e) => {
+    var panel = this.props.panel;
+    var Ntop = this.state.nTop;
+    var Nleft = this.state.nLeft;
+    var step = panel[Ntop][Nleft];
+    switch (e.keyCode) {
+      case 37:
+        if (!step['left']) {
+          Nleft--;
+        }
+        break;
+      case 38: //上
+        if (!step['top']) {
+          Ntop--;
+        }
+        break;
+      case 39:
+        if (!step['right']) {
+          if ((Ntop === 19) && (Nleft === 19)) {
+            console.log("Game over");
+          } else {
+            Nleft++;    
+          }
+        }
+        break;
+      case 40: //下
+        if(!step['bottom']){
+          Ntop++;
+        }
+        break;
+      default:
+    }
+    this.setState({
+      nLeft: Nleft,
+      nTop: Ntop,
+     });
   }
 }
 export default App;
