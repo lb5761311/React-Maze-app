@@ -5,21 +5,30 @@ import './App.css';
 class App extends Component {
   constructor() {
     super();
+    this.onResize = this.onResize.bind(this);
     this.state = {
       panel: null,
+      repos:false,
       pos: Array(2).fill(null),
     }
   }
   componentDidMount() {
     this.initPanel();
+    window.addEventListener("resize", this.onResize);
   }
-  
+  onResize(){
+    const rows = document.getElementsByClassName('row');
+    var LeftTop = rows[0].children[0];
+    var Pos = new Array(2);
+    Pos[0] = LeftTop.offsetLeft + 1 ;
+    Pos[1] = LeftTop.offsetTop + 1 ;
+    this.refs.myrat.resetTopLeftPos(Pos);
+  }
   initPanel() {
-    console.log("init Row");
     const value = { top: false, left: false, bottom: false, right: false };
     const rows = document.getElementsByClassName('row');
     var LeftTop = rows[0].children[0];
-    var Pos = new Array();
+    var Pos = new Array(2);
     Pos[0] = LeftTop.offsetLeft + 1 ;
     Pos[1] = LeftTop.offsetTop + 1 ;
     const mPanel = [];
@@ -484,7 +493,7 @@ class App extends Component {
             <div className="bottom cell"></div>
           </div>
         </div>
-        <Rat id="rats" pos={this.state.pos} panel={this.state.panel} />
+        <Rat id="rats" ref="myrat" pos={this.state.pos} panel={this.state.panel} />
       </div>
     );
   }
@@ -503,11 +512,24 @@ class Rat extends Component {
   componentDidMount() {
     document.addEventListener("keydown", this.onKeyDown);
   }
+  resetTopLeftPos(resetPos){
+         this.setState({
+             initPos: resetPos,
+       });
+  }
   render() {
     var currenStep_X = this.state.nLeft*22 ;
     var currenStep_Y = this.state.nTop*22;
-    var X = this.props.pos[0];
-    var Y = this.props.pos[1];
+    var X ;
+    var Y ;
+    if(!this.state.initPos[0]){
+            X = this.props.pos[0];
+            Y = this.props.pos[1];
+      }else{
+            X = this.state.initPos[0];
+            Y =  this.state.initPos[1];
+      }
+      
     var nstyle = {
       left: X + currenStep_X,
       top: Y +  currenStep_Y,
